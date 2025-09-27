@@ -1,0 +1,19 @@
+﻿using AutoMapper;
+using ECommerce.BLL.Services.Contracts;
+using ECommerce.BLL.ViewModels;
+
+
+namespace ECommerce.BLL.Services
+{
+    public class CategoryManager : CrudManager<Category, CategoryViewModel, CreateCategoryViewModel, UpdateCategoryViewModel>, ICategoryService
+    {
+        public CategoryManager(IRepository<Category> repository, IMapper mapper) : base(repository, mapper)
+        {
+        }
+
+        public async Task<IEnumerable<CategoryViewModel>> GetActiveCategoriesAsync()
+        {
+            return await GetAllAsync(c => !c.IsDeleted); 
+        }
+    }
+}
