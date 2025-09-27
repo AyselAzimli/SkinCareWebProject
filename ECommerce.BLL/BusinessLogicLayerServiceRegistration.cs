@@ -14,10 +14,8 @@ namespace ECommerce.BLL
 
             services.AddScoped(typeof(ICrudService<,,,>), typeof(CrudManager<,,,>));
             services.AddScoped<ICategoryService, CategoryManager>();
-            //services.AddScoped<ITagService, TagManager>();
-            //services.AddScoped<IProductService, ProductManager>();
-            //services.AddScoped<IHomeService, HomeManager>();
-            //services.AddScoped<IReviewService, ReviewManager>();
+            services.AddScoped<IProductService, ProductManager>();
+            services.AddScoped<IHomeService, HomeManager>();
             //services.AddScoped<FileService>();
             //services.AddScoped<BasketManager>();
 

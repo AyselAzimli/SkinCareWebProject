@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 using ECommerce.BLL.Services.Contracts;
+using ECommerce.DAL.DataContext.Entities;
+using ECommerce.DAL.Repositories.Contracts;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace ECommerce.BLL.Services

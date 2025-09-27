@@ -1,5 +1,7 @@
 ﻿//using ECommerce.DAL.DataContext;
 
+using ECommerce.DAL.DataContext.Entities;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace ECommerce.BLL.Services.Contracts

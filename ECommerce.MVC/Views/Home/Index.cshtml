@@ -1,4 +1,5 @@
-﻿<!-- slider -->
+﻿@model HomeViewModel
+<!-- slider -->
 <div class="tf-slideshow slider-effect-fade slider-skincare position-relative">
     <div dir="ltr" class="swiper tf-sw-slideshow" data-preview="1" data-tablet="1" data-mobile="1"
          data-centered="false" data-space="0" data-loop="true" data-auto-play="false" data-delay="2000"
@@ -95,418 +96,60 @@
                              data-mobile="2" data-space-lg="30" data-space-md="15" data-pagination="2"
                              data-pagination-md="3" data-pagination-lg="3">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-1.jpg"
-                                                     src="~/images/products/skincare-1.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-2.jpg"
-                                                     src="~/images/products/skincare-2.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
+                                @foreach(var item in Model.Products){
+                                    <div class="swiper-slide" lazy="true">
+                                        <div class="card-product style-skincare">
+                                            <div class="card-product-wrapper">
+                                                <a href="product-detail.html" class="product-img">
+                                                    <img class="lazyload img-product"
+                                                         data-src="/images/products/@item.CoverImageName"
+                                                         src="~/images/products/@item.CoverImageName" alt="image-product">
+                                                    <img class="lazyload img-hover"
+                                                         data-src="/images/products/@item.CoverImageName"
+                                                         src="~/images/products/@item.CoverImageName" alt="image-product">
                                                 </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
+                                                <div class="list-product-btn">
+                                                    <a href="#" class="box-icon bg_white wishlist btn-icon-action">
+                                                        <span class="icon icon-heart"></span>
+                                                        <span class="tooltip">Add to Wishlist</span>
+                                                        <span class="icon icon-delete"></span>
+                                                    </a>
+                                                    <a href="#compare" data-bs-toggle="offcanvas"
+                                                       aria-controls="offcanvasLeft"
+                                                       class="box-icon bg_white compare btn-icon-action">
+                                                        <span class="icon icon-compare"></span>
+                                                        <span class="tooltip">Add to Compare</span>
+                                                        <span class="icon icon-check"></span>
+                                                    </a>
+                                                    <a href="#quick_view" data-bs-toggle="modal"
+                                                       class="box-icon bg_white quickview tf-btn-loading">
+                                                        <span class="icon icon-view"></span>
+                                                        <span class="tooltip">Quick View</span>
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Natural
-                                                Moisturizing Factors
-                                            </a>
-                                            <span class="price">$32.00</span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">30ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">60ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
+                                            <div class="card-product-info text-center">
+                                                <a href="product-detail.html" class="title link">
+                                                    @item.Name
                                                 </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-3.jpg"
-                                                     src="~/images/products/skincare-3.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-4.jpg"
-                                                     src="~/images/products/skincare-4.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
-                                                </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Anhydrous Solution
-                                                Pore Serum
-                                            </a>
-                                            <span class="price">From $65.00</span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">30ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">60ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
-                                                </a>
+                                                <span class="price">$</span>
+                                                <div class="tf-size-list">
+                                                    <span class="tf-size-list-item fw-6 radius-3">30ml</span>
+                                                    <span class="tf-size-list-item fw-6 radius-3">60ml</span>
+                                                </div>
+                                                <div class="tf-product-btns">
+                                                    <a href="#quick_add" data-bs-toggle="modal"
+                                                       class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
+                                                        Quick
+                                                        add
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-5.jpg"
-                                                     src="~/images/products/skincare-5.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-6.jpg"
-                                                     src="~/images/products/skincare-6.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
-                                                </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Serum for Hair
-                                                Density
-                                            </a>
-                                            <span class="price">$65.00</span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">40ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">50ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-7.jpg"
-                                                     src="~/images/products/skincare-7.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-8.jpg"
-                                                     src="~/images/products/skincare-8.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
-                                                </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Mini Confidence in
-                                                a Cleanser
-                                            </a>
-                                            <span class="price">$22.00</span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">50ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">80ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-9.jpg"
-                                                     src="~/images/products/skincare-9.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-10.jpg"
-                                                     src="~/images/products/skincare-10.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
-                                                </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Natural
-                                                Moisturizing Factors
-                                            </a>
-                                            <span class="price">
-                                                <span class="fw-4 text-sale">$62.00</span> <span class="text_primary">$52.00</span>
-                                            </span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">50ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">80ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-11.jpg"
-                                                     src="~/images/products/skincare-11.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-12.jpg"
-                                                     src="~/images/products/skincare-12.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
-                                                </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Natural
-                                                Moisturizing Factors
-                                            </a>
-                                            <span class="price">
-                                                <span class="fw-4 text-sale">$62.00</span> <span class="text_primary">$52.00</span>
-                                            </span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">50ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">80ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-13.jpg"
-                                                     src="~/images/products/skincare-13.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-14.jpg"
-                                                     src="~/images/products/skincare-14.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
-                                                </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Mini Skin
-                                                Perfecting Exfoliant
-                                            </a>
-                                            <span class="price">$65.00</span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">40ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">50ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide" lazy="true">
-                                    <div class="card-product style-skincare">
-                                        <div class="card-product-wrapper">
-                                            <a href="product-detail.html" class="product-img">
-                                                <img class="lazyload img-product"
-                                                     data-src="/images/products/skincare-15.jpg"
-                                                     src="~/images/products/skincare-15.jpg" alt="image-product">
-                                                <img class="lazyload img-hover"
-                                                     data-src="/images/products/skincare-16.jpg"
-                                                     src="~/images/products/skincare-16.jpg" alt="image-product">
-                                            </a>
-                                            <div class="list-product-btn">
-                                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                                    <span class="icon icon-heart"></span>
-                                                    <span class="tooltip">Add to Wishlist</span>
-                                                    <span class="icon icon-delete"></span>
-                                                </a>
-                                                <a href="#compare" data-bs-toggle="offcanvas"
-                                                   aria-controls="offcanvasLeft"
-                                                   class="box-icon bg_white compare btn-icon-action">
-                                                    <span class="icon icon-compare"></span>
-                                                    <span class="tooltip">Add to Compare</span>
-                                                    <span class="icon icon-check"></span>
-                                                </a>
-                                                <a href="#quick_view" data-bs-toggle="modal"
-                                                   class="box-icon bg_white quickview tf-btn-loading">
-                                                    <span class="icon icon-view"></span>
-                                                    <span class="tooltip">Quick View</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="card-product-info text-center">
-                                            <a href="product-detail.html" class="title link">
-                                                Mini Skin
-                                                Perfecting Exfoliant
-                                            </a>
-                                            <span class="price">$65.00</span>
-                                            <div class="tf-size-list">
-                                                <span class="tf-size-list-item fw-6 radius-3">40ml</span>
-                                                <span class="tf-size-list-item fw-6 radius-3">50ml</span>
-                                            </div>
-                                            <div class="tf-product-btns">
-                                                <a href="#quick_add" data-bs-toggle="modal"
-                                                   class="tf-btn style-3 radius-3 btn-fill animate-hover-btn">
-                                                    Quick
-                                                    add
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                } 
+                                
+                                
                             </div>
                         </div>
                         <div class="nav-sw style-not-line nav-next-slider nav-next-sell-1 box-icon w_46 round">
