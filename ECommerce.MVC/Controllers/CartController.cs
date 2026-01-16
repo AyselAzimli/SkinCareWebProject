@@ -63,5 +63,8 @@ namespace ECommerce.MVC.Controllers
             await viewResult.View.RenderAsync(viewContext);
             return writer.ToString();
         }
+
+
+
     }
 }

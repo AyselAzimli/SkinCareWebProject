@@ -72,12 +72,43 @@
 
                 <!-- Buy Buttons -->
                 <div class="tf-product-info-buy-button">
-                    <form>
-                        
-                        <a  class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn btn-add-to-cart">
-                            <span onclick="addToBasket(@Model.Id)" >Add to cart</span>
+                    <form asp-controller="Basket" asp-action="Add" method="post">
+                        @* <a asp-controller="Basket"
+                           asp-action="Add"
+                           asp-route-productVariantId="@Model.Id"
+                           asp-route-quantity="1"
+                           class="tf-btn btn-fill btn-add-to-cart">
+                            Add to cart
                             <span class="tf-qty-price">$@(Model.Variants?.FirstOrDefault()?.Price ?? 0)</span>
-                        </a>
+                        </a> *@
+
+                        
+                            <input type="hidden" name="productVariantId" value="@Model.Id" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="tf-btn btn-fill btn-add-to-cart">
+                                Add to cart
+                                <span class="tf-qty-price">$@(Model.Variants?.FirstOrDefault()?.Price ?? 0)</span>
+                            </button>
+                       
+
+
+                       @*  <button type="button"
+                                class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn btn-add-to-cart"
+                                data-product-id="@Model.Id">
+
+                            <a href="#shoppingCart"
+                               data-bs-toggle="modal"
+                               class="box-icon bg_white quick-add tf-btn-loading">
+                                <span class="icon icon-bag"></span>
+                                <span class="tooltip">
+                                    Add to
+                                    cart
+                                </span>
+                            </a>
+                            <span class="tf-qty-price">$@(Model.Variants?.FirstOrDefault()?.Price ?? 0)</span>
+                        </button>
+
+ *@
 
                         <div class="tf-product-btn-wishlist btn-icon-action">
                             <i class="icon-heart"></i>
@@ -154,43 +185,8 @@
 
 
 
-            function addToBasket(productId) {
-    fetch('/Basket/Add?id=' + productId, {
-        method: 'POST'
-    })
-        .then(response => {
-            if (response.ok) {
-                alert('Product Added to Cart!');
-                updateCartCount();
-            } else {
-                response.text().then(text => {
-                    console.error('Error response:', text);
-                    alert('Failed');
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred');
-        });
-}
-function removeFromBasket(productId, element) {
-    fetch('/Basket/Remove?id=' + productId, {
-        method: 'POST'
-    })
-        .then(response => {
-            if (response.ok) {
-                element.closest('tr').remove();
-                location.reload();
-            } else {
-                alert('Failed to remove product from cart');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred');
-        });
-}
+            
+
 
 function changeQuantity(productId, change) {
     fetch(`/Cart/ChangeQuantity?productId=${productId}&change=${change}`, {
@@ -257,4 +253,40 @@ function updateCartCount() {
             });
         });
     });
+
+    function addToBasket(productId, quantity = 1) {
+        fetch('/Basket/Add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `productVariantId=${productId}&quantity=${quantity}`
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Added to cart'); // optional toast
+                    updateCartCount();      // update cart icon count
+                } else {
+                    alert('Failed to add to cart');
+                }
+            })
+            .catch(err => console.error(err));
+    }
+
+    // Hook the button click
+    document.querySelectorAll('.btn-add-to-cart').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const productId = this.dataset.productId;
+
+            // Get quantity from the modal input
+            const modal = this.closest('.popup-quickadd');
+            const quantityInput = modal.querySelector('input[name="number"]');
+            const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+
+            // Optionally get selected variant here if needed
+            // const selectedVariantRadio = modal.querySelector('input[type="radio"]:checked');
+            // const variantId = selectedVariantRadio ? selectedVariantRadio.value : productId;
+
+            addToBasket(productId, quantity);
+        });
+    });
+
 </script>

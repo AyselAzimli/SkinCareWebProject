@@ -15,7 +15,6 @@ namespace ECommerce.MVC.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var basket = await _basketManager.GetBasketAsync();
-
             return View(basket);
         }
     }

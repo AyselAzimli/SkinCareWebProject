@@ -26,8 +26,9 @@ namespace ECommerce.BLL
             services.AddScoped<ISocialService, SocialManager>();
             services.AddScoped<ILanguageService, LanguageManager>();
             services.AddScoped<ICurrencyService, CurrencyManager>();
-           // services.AddScoped<ISliderService,SliderManager>();
+            // services.AddScoped<ISliderService,SliderManager>();
 
+            services.AddScoped<IProductVariantService, ProductVariantManager>();
             services.AddScoped<BasketManager>();
 
 

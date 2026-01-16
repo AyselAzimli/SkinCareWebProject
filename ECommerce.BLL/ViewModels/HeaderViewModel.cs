@@ -9,5 +9,7 @@ namespace ECommerce.BLL.ViewModels
     public class HeaderViewModel
     {
         public string? LogoUrl { get; set; }
+        public string? Search { get; set; }
+
     }
 }

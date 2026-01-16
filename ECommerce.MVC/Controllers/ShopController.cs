@@ -12,11 +12,11 @@ namespace ECommerce.MVC.Controllers
             _shopService = shopService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? categoryId, int? brandId, string? search)
         {
-            var model = await _shopService.GetShopViewModelAsync();
-
+            var model = await _shopService.GetShopViewModelAsync(categoryId, brandId, search);
             return View(model);
         }
+
     }
 }

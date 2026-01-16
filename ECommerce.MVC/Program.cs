@@ -45,8 +45,12 @@ namespace ECommerce.MVC
 
             builder.Services.AddHttpContextAccessor();
 
+            builder.Services.AddScoped<IProductService, ProductManager>();
+            builder.Services.AddScoped<IProductVariantService, ProductVariantManager>();
+            builder.Services.AddScoped<ICategoryService, CategoryManager>();
+            builder.Services.AddScoped<IBrandService, BrandManager>();
 
-
+            builder.Services.AddScoped<BasketManager>();
 
 
 

@@ -11,6 +11,8 @@ namespace ECommerce.DAL.DataContext.Entities
     {
         public string? FullName { get; set; }
         public string? ProfileImageName { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         // Navigation properties
         public ICollection<Address> Addresses { get; set; } = [];

@@ -17,6 +17,8 @@ namespace ECommerce.BLL.ViewModels
         public string? BrandName { get; set; } 
         public decimal Price { get; set; }
 
+        public int? BrandId { get; set; }
+        public int? CategoryId { get; set; }
         public List<ProductImageViewModel> Images { get; set; } = new();
         public List<ProductVariantViewModel> Variants { get; set; } = new();
     }

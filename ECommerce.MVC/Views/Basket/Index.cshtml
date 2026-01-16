@@ -1,0 +1,133 @@
+﻿@model BasketViewModel
+
+<div class="tf-page-title">
+    <div class="container-full">
+        <div class="heading text-center">Shopping Cart</div>
+    </div>
+</div>
+
+<section class="flat-spacing-11">
+    <div class="container">
+
+        @if (!Model.Items.Any())
+        {
+            <div class="alert alert-info text-center">
+                Your basket is empty
+            </div>
+        }
+        else
+        {
+            <div id="cart-container">
+                <table class="table cart-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-center">Price</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-center">Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr data-id="@item.ProductId">
+                                <td>@item.ProductName</td>
+
+                                <td class="text-center">
+                                    $@item.Price
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="d-inline-flex align-items-center gap-2">
+                                        <button class="btn btn-sm btn-outline-secondary btn-qty"
+                                                data-change="-1">
+                                            −
+                                        </button>
+
+                                        <span class="fw-bold qty">
+                                            @item.Quantity
+                                        </span>
+
+                                        <button class="btn btn-sm btn-outline-secondary btn-qty"
+                                                data-change="1">
+                                            +
+                                        </button>
+                                    </div>
+                                </td>
+
+                                <td class="text-center fw-bold">
+                                    $@item.TotalPrice
+                                </td>
+
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-danger btn-remove">
+                                        ✕
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <h4>
+                        Total: <span id="basket-total">$@Model.TotalPrice</span>
+                    </h4>
+
+                    <button id="clear-basket" class="btn btn-outline-danger">
+                        Clear basket
+                    </button>
+                </div>
+            </div>
+        }
+
+    </div>
+</section>
+
+
+    <script>
+        // + / - quantity
+        document.querySelectorAll('.btn-qty').forEach(btn => {
+            btn.addEventListener('click', function () {
+
+                const row = this.closest('tr');
+                const id = row.dataset.id;
+                const change = this.dataset.change;
+
+                fetch('/Basket/ChangeQuantity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `productVariantId=${id}&change=${change}`
+                })
+                .then(res => res.json())
+                .then(() => location.reload());
+            });
+        });
+
+        // remove item
+        document.querySelectorAll('.btn-remove').forEach(btn => {
+            btn.addEventListener('click', function () {
+
+                const row = this.closest('tr');
+                const id = row.dataset.id;
+
+                fetch('/Basket/Remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${id}`
+                })
+                .then(() => location.reload());
+            });
+        });
+
+        // clear basket
+        const clearBtn = document.getElementById('clear-basket');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                fetch('/Basket/Clean', { method: 'POST' })
+                    .then(() => location.reload());
+            });
+        }
+    </script>

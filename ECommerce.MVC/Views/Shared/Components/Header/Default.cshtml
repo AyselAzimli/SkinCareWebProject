@@ -676,8 +676,15 @@
                                             <div class="demo-label"><span class="demo-new">New</span></div>
                                         </a>
                                     </li>
-                                    <li>
+                                    @* <li>
                                         <a href="view-cart.html"
+                                           class="menu-link-text link text_black-2 position-relative">
+                                            View
+                                            cart
+                                        </a> 
+                                    </li> *@
+                                    <li>
+                                        <a asp-controller="basket" asp-action="index"
                                            class="menu-link-text link text_black-2 position-relative">
                                             View
                                             cart
@@ -805,11 +812,15 @@
             <div class="col-xl-3 col-md-4 col-3">
                 <ul class="nav-icon d-flex justify-content-end align-items-center gap-20">
                     <li class="nav-search">
-                        <a href="#canvasSearch" data-bs-toggle="offcanvas"
+                         <a href="#canvasSearch" data-bs-toggle="offcanvas"
                            aria-controls="offcanvasLeft" class="nav-icon-item">
-                            <i class="icon icon-search"></i>
+                            <i class="icon icon-search">
+
+                            </i>
                         </a>
-                    </li>
+                        
+
+                    </li> 
                     <li class="nav-account">
                         <a href="#login" data-bs-toggle="modal" class="nav-icon-item">
                             <i class="icon icon-account"></i>
@@ -820,13 +831,37 @@
                             <i class="icon icon-heart"></i><span class="count-box">0</span>
                         </a>
                     </li>
-                    <li class="nav-cart">
-                        <a href="#shoppingCart" data-bs-toggle="modal" class="nav-icon-item">
-                            <i class="icon icon-bag"></i><span class="count-box">0</span>
+                    <li>
+                        <a asp-controller="basket" asp-action="index"
+                           class="menu-link-text link text_black-2 position-relative">
+                            View
+                            cart
                         </a>
                     </li>
                 </ul>
+
+                <div class="offcanvas offcanvas-top" tabindex="-1" id="canvasSearch">
+                    <div class="offcanvas-body">
+                        <form asp-controller="Shop"
+                              asp-action="Index"
+                              method="get"
+                              class="search-form">
+
+                            <input type="text"
+                                   name="search"
+                                   placeholder="Search products..."
+                                   class="form-control"
+                                   autocomplete="off" />
+
+                            <button type="submit" class="btn btn-dark mt-2">
+                                Search
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 </header>
+

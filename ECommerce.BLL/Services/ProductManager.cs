@@ -152,5 +152,10 @@ namespace ECommerce.BLL.Services
 
             return true;
         }
+
+        //public Task<List<ProductViewModel>> GetAllAsync()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

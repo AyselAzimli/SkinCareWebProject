@@ -13,31 +13,70 @@ namespace ECommerce.BLL.Services
     {
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
+        private readonly IBrandService _brandService;
 
-        public ShopManager(ICategoryService categoryService, IProductService productService)
+
+        public ShopManager(ICategoryService categoryService, IProductService productService, IBrandService brandService)
         {
             _categoryService = categoryService;
             _productService = productService;
+            _brandService = brandService;
         }
 
-        public async Task<ShopViewModel> GetShopViewModelAsync()
+        public async Task<ShopViewModel> GetShopViewModelAsync(
+            int? categoryId,
+            int? brandId,
+            string? search
+        )
         {
-            var categories = await _categoryService.GetAllAsync(predicate: x => !x.IsDeleted);
-            var products = (await _productService.GetAllAsync(
+            var categories = await _categoryService.GetAllAsync(x => !x.IsDeleted);
+            var brands = await _brandService.GetAllAsync(x => !x.IsDeleted);
+
+            var productsQuery = (await _productService.GetAllAsync(
                 predicate: x => !x.IsDeleted,
-                include: query => query
+                include: q => q
                     .Include(p => p.Images)
                     .Include(p => p.Variants)
+                    .Include(p => p.Brand!)
                     .Include(p => p.Category!)
-            )).ToList();
+            )).AsQueryable();
 
-            var shopViewModel = new ShopViewModel
+            // CATEGORY
+            if (categoryId.HasValue)
+                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId);
+
+            // BRAND
+            if (brandId.HasValue)
+                productsQuery = productsQuery.Where(p => p.BrandId == brandId);
+
+            // 🔍 SEARCH
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                Categories = categories.ToList(),
-                Products = products.ToList(),
-            };
+                productsQuery = productsQuery
+                    .Where(p => p.Name!.ToLower().Contains(search.ToLower().Trim()));
+            }
 
-            return shopViewModel;
+            if (categoryId.HasValue)
+            {
+                productsQuery = productsQuery
+                    .Where(p => p.CategoryId == categoryId);
+            }
+
+
+            return new ShopViewModel
+            {
+                Products = productsQuery.ToList(),
+                Categories = categories.ToList(),
+                Brands = brands.ToList(),
+
+                Search = search, 
+                SelectedCategoryId = categoryId,
+                SelectedBrandId = brandId
+            };
+            
+
+
         }
+
     }
 }

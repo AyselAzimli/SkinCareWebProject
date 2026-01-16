@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ECommerce.BLL.ViewModels
+﻿namespace ECommerce.BLL.ViewModels
 {
-
     public class BasketViewModel
     {
-        public List<BasketItemViewModel> Items { get; set; } = new List<BasketItemViewModel>();
-        public decimal TotalPrice => Items.Sum(item => item.Price * item.Quantity);
-        public int TotalCount => Items.Sum(item => item.Quantity);
+        public List<BasketItemViewModel> Items { get; set; } = new();
+        public decimal TotalPrice => Items.Sum(x => x.Price * x.Quantity);
+        public int TotalCount => Items.Sum(x => x.Quantity);
     }
 
     public class BasketItemViewModel
     {
         public int ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
-        public string ImageName { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Quantity { get; set; }
         public decimal TotalPrice => Price * Quantity;
