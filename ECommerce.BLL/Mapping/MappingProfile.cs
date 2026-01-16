@@ -70,6 +70,25 @@ namespace ECommerce.BLL.Mapping
 
             CreateMap<ProductVariant, ProductVariantViewModel>();
 
+            CreateMap<Address, AddressViewModel>().ReverseMap();
+            CreateMap<Address, AddressCreateViewModel>().ReverseMap();
+            CreateMap<Address, AddressUpdateViewModel>().ReverseMap();
+            // Orders
+            CreateMap<Order, OrderViewModel>()
+                .ForMember(x => x.AppUserName, opt => opt.MapFrom(src => src.AppUser != null ? src.AppUser.UserName : ""));
+            CreateMap<Order, OrderCreateViewModel>().ReverseMap();
+            CreateMap<Order, OrderUpdateViewModel>().ReverseMap();
+
+            // Order Items
+            CreateMap<OrderItem, OrderItemViewModel>().ReverseMap();
+            CreateMap<OrderItem, OrderItemCreateViewModel>().ReverseMap();
+            CreateMap<OrderItem, OrderItemUpdateViewModel>().ReverseMap();
+
+            // Order Detail (optional if you also have OrderDetail entity)
+            CreateMap<OrderItem, OrderItemViewModel>().ReverseMap();
+            CreateMap<OrderItem, OrderItemCreateViewModel>().ReverseMap();
+            CreateMap<OrderItem, OrderItemUpdateViewModel>().ReverseMap();
+
         }
     }
 }

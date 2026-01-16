@@ -24,11 +24,14 @@ namespace ECommerce.BLL.Services
         }
 
         public async Task<ShopViewModel> GetShopViewModelAsync(
-            int? categoryId,
-            int? brandId,
-            string? search
-        )
+    int? categoryId,
+    int? brandId,
+    string? search,
+    int page
+)
         {
+            const int pageSize = 8;
+
             var categories = await _categoryService.GetAllAsync(x => !x.IsDeleted);
             var brands = await _brandService.GetAllAsync(x => !x.IsDeleted);
 
@@ -41,42 +44,40 @@ namespace ECommerce.BLL.Services
                     .Include(p => p.Category!)
             )).AsQueryable();
 
-            // CATEGORY
             if (categoryId.HasValue)
                 productsQuery = productsQuery.Where(p => p.CategoryId == categoryId);
 
-            // BRAND
             if (brandId.HasValue)
                 productsQuery = productsQuery.Where(p => p.BrandId == brandId);
 
-            // 🔍 SEARCH
             if (!string.IsNullOrWhiteSpace(search))
-            {
                 productsQuery = productsQuery
                     .Where(p => p.Name!.ToLower().Contains(search.ToLower().Trim()));
-            }
 
-            if (categoryId.HasValue)
-            {
-                productsQuery = productsQuery
-                    .Where(p => p.CategoryId == categoryId);
-            }
+            var totalProducts = productsQuery.Count();
+            var totalPages = (int)Math.Ceiling(totalProducts / (double)pageSize);
 
+            var products = productsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             return new ShopViewModel
             {
-                Products = productsQuery.ToList(),
+                Products = products,
                 Categories = categories.ToList(),
                 Brands = brands.ToList(),
 
-                Search = search, 
                 SelectedCategoryId = categoryId,
-                SelectedBrandId = brandId
+                SelectedBrandId = brandId,
+                Search = search,
+
+                CurrentPage = page,
+                TotalPages = totalPages,
+                PageSize = pageSize
             };
-            
-
-
         }
+
 
     }
 }

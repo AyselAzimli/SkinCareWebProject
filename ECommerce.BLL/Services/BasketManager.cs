@@ -1,5 +1,6 @@
 ﻿using ECommerce.BLL.Services.Contracts;
 using ECommerce.BLL.ViewModels;
+using ECommerce.DAL.DataContext.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -14,40 +15,38 @@ namespace ECommerce.BLL.Services
         private const string BasketCookieName = "basket";
 
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IProductVariantService _productVariantService;
         private readonly IProductService _productService;
 
-        public BasketManager(IHttpContextAccessor httpContextAccessor, IProductService productService)
+        public BasketManager(IHttpContextAccessor httpContextAccessor, IProductVariantService productVariantService, IProductService productService)
         {
             _httpContextAccessor = httpContextAccessor;
+            _productVariantService = productVariantService;
             _productService = productService;
         }
 
-        public void AddToBasket(int productId)
+        public void AddToBasket(int productVariantId, int quantity = 1)
         {
             var basket = GetBasketFromCookie();
-            var basketItem = basket.FirstOrDefault(item => item.ProductId == productId);
+
+            var basketItem = basket.FirstOrDefault(x => x.ProductVariantId == productVariantId);
 
             if (basketItem != null)
-            {
-                basketItem.Quantity += 1;
-            }
+                basketItem.Quantity += quantity;
             else
-            {
                 basket.Add(new BasketCookieItemViewModel
                 {
-                    ProductId = productId,
-                    Quantity = 1
+                    ProductVariantId = productVariantId,
+                    Quantity = quantity
                 });
-            }
 
             SaveBasketToCookie(basket);
         }
 
-        public void RemoveFromBasket(int productId)
+        public void RemoveFromBasket(int productVariantId)
         {
             var basket = GetBasketFromCookie();
-            var basketItem = basket.FirstOrDefault(item => item.ProductId == productId);
-
+            var basketItem = basket.FirstOrDefault(x => x.ProductVariantId == productVariantId);
             if (basketItem != null)
             {
                 basket.Remove(basketItem);
@@ -62,62 +61,65 @@ namespace ECommerce.BLL.Services
 
             foreach (var item in basket)
             {
-                var product = await _productService.GetByIdAsync(item.ProductId);
-                if (product != null)
+                // Get the variant
+                var variant = await _productVariantService.GetAsync(x => x.Id == item.ProductVariantId);
+                if (variant == null) continue;
+
+                // Use variant.Product for name and id
+                var product = variant.Product;
+                if (product == null)
                 {
-                    basketViewModel.Items.Add(new BasketItemViewModel
+                    // Optionally fetch product from ProductService if navigation property is null
+                    var productVm = await _productService.GetByIdAsync(variant.ProductId);
+                    if (productVm == null) continue;
+
+                    product = new Product
                     {
-                        ProductId = product.Id,
-                        ProductName = product.Name!,
-                        Price = product.Price,
-                        Quantity = item.Quantity
-                    });
+                        Id = productVm.Id,
+                        Name = productVm.Name ?? "Unknown"
+                    };
                 }
+
+                basketViewModel.Items.Add(new BasketItemViewModel
+                {
+                    ProductId = product.Id,
+                    ProductVariantId = variant.Id,  // assign it here!
+                    ProductName = product.Name ?? "Unknown",
+                    Price = variant.Price,
+                    Quantity = item.Quantity
+                });
             }
 
             return basketViewModel;
         }
 
-        public async Task<BasketViewModel> ChangeQuantityAsync(int productId, int quantity)
+
+
+
+        public async Task<BasketViewModel> ChangeQuantityAsync(int productVariantId, int change)
         {
             var basket = GetBasketFromCookie();
-            var basketItem = basket.FirstOrDefault(item => item.ProductId == productId);
+            var basketItem = basket.FirstOrDefault(x => x.ProductVariantId == productVariantId);
 
             if (basketItem != null)
             {
-                basketItem.Quantity += quantity;
+                basketItem.Quantity += change;
+
+                if (basketItem.Quantity <= 0)
+                    basket.Remove(basketItem);
+
                 SaveBasketToCookie(basket);
             }
 
-            var basketViewModel = new BasketViewModel();
-
-            foreach (var item in basket)
-            {
-                var product = await _productService.GetByIdAsync(item.ProductId);
-                if (product != null)
-                {
-                    basketViewModel.Items.Add(new BasketItemViewModel
-                    {
-                        ProductId = product.Id,
-                        ProductName = product.Name!,
-                        Price = product.Price,
-                        Quantity = item.Quantity
-                    });
-                }
-            }
-
-            return basketViewModel;
+            return await GetBasketAsync();
         }
+
 
         private List<BasketCookieItemViewModel> GetBasketFromCookie()
         {
             var cookie = _httpContextAccessor.HttpContext?.Request.Cookies[BasketCookieName];
-
-            if (string.IsNullOrEmpty(cookie))
-                return new List<BasketCookieItemViewModel>();
-
-            return JsonSerializer.Deserialize<List<BasketCookieItemViewModel>>(cookie)
-                   ?? new List<BasketCookieItemViewModel>();
+            if (string.IsNullOrEmpty(cookie)) return new List<BasketCookieItemViewModel>();
+            return JsonSerializer.Deserialize<List<BasketCookieItemViewModel>>(cookie) ?? new List<BasketCookieItemViewModel>();
         }
 
         private void SaveBasketToCookie(List<BasketCookieItemViewModel> basket)
@@ -127,9 +129,15 @@ namespace ECommerce.BLL.Services
                 Expires = DateTimeOffset.UtcNow.AddDays(7),
                 HttpOnly = true
             };
-
             var cookieValue = JsonSerializer.Serialize(basket);
             _httpContextAccessor.HttpContext?.Response.Cookies.Append(BasketCookieName, cookieValue, cookieOptions);
         }
+
+        public void CleanBasket()
+        {
+            var emptyBasket = new List<BasketCookieItemViewModel>();
+            SaveBasketToCookie(emptyBasket);
+        }
+
     }
 }

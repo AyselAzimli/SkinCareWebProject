@@ -1,0 +1,123 @@
+﻿@model OrderViewModel
+
+<!-- page-title -->
+<div class="tf-page-title">
+    <div class="container-full">
+        <div class="heading text-center">My Orders</div>
+    </div>
+</div>
+<!-- /page-title -->
+<!-- page-cart -->
+<section class="flat-spacing-11">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <partial name="_AccountMenuPartial" />
+            </div>
+            <div class="col-lg-9">
+                <div class="wd-form-order">
+                    <div class="order-head">
+                        @foreach (var item in Model.OrderDetails ?? [])
+                            {
+                                <span>
+                        <figure class="img-product">
+                            
+                            
+                        </figure>
+                        </span>
+                            }
+                        <div class="content">
+                            <div class="badge">In Progress</div>
+                            <h6 class="mt-8 fw-5">Order #@Model.Id</h6>
+                        </div>
+                    </div>
+                    <div class="tf-grid-layout md-col-2 gap-15">
+                        <div class="item">
+                            <div class="text-2 text_black-2">Start Time</div>
+                            <div class="text-2 mt_4 fw-6">@Model.CreatedAt</div>
+                        </div>
+                        <div class="item">
+                            <div class="text-2 text_black-2">Address</div>
+                            <div class="text-2 mt_4 fw-6">@Model.Address?.Adress</div>
+                        </div>
+                    </div>
+                    <div class="widget-tabs style-has-border widget-order-tab">
+                        <ul class="widget-menu-tab">
+                            <li class="item-title">
+                                <span class="inner">Item Details</span>
+                            </li>
+                            <li class="item-title">
+                                <span class="inner">Courier</span>
+                            </li>
+                            <li class="item-title">
+                                <span class="inner">Receiver</span>
+                            </li>
+                        </ul>
+                        <div class="widget-content-tab">
+                            <div class="widget-content-inner">
+                                @foreach (var item in Model.OrderDetails ?? [])
+                                {
+                                <div class="order-head">
+                                    <figure class="img-product">
+                                    </figure>
+                                        <div class="content">
+                                            <div class="text-2 fw-6">@item.ProductVariant?.Name</div>
+                                            <div class="mt_4"><span class="fw-6">Price :</span> $@item.ProductVariant?.Price</div>
+                                            <div class="mt_4"><span class="fw-6">Quantity :</span> @item.Quantity</div>
+@*                                             <div class="mt_4"><span class="fw-6">Color :</span> @item.ProductVariant?.ColorName</div>
+ *@                                        </div>                                 
+                                </div>
+                                }
+                                <ul>
+                                    <li class="d-flex justify-content-between text-2">
+                                        <span>Total Price</span>
+                                        <span class="fw-6">$@Model.TotalPrice</span>
+                                    </li>
+                                    <li class="d-flex justify-content-between text-2 mt_4 pb_8 line">
+                                        <span>Total Discounts</span>
+                                        <span class="fw-6">$@Model.DiscountAmount</span>
+
+                                    </li>
+                                    <li class="d-flex justify-content-between text-2 mt_8">
+                                        <span>Order Total</span>
+                                        <span class="fw-6">$@Model.EndPrice</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="widget-content-inner">
+                                <p>
+                                    Our courier service is dedicated to providing fast, reliable, and secure
+                                    delivery solutions tailored to meet your needs. Whether you're sending
+                                    documents, parcels, or larger shipments, our team ensures that your items
+                                    are handled with the utmost care and delivered on time. With a commitment to
+                                    customer satisfaction, real-time tracking, and a wide network of routes, we
+                                    make it easy for you to send and receive packages both locally and
+                                    internationally. Choose our service for a seamless and efficient delivery
+                                    experience.
+                                </p>
+                            </div>
+                            <div class="widget-content-inner">
+                                <p class="text-2 text_success">Thank you Your order has been received</p>
+                                <ul class="mt_20">
+                                    <li>Order Number : <span class="fw-7">#@Model.Id</span></li>
+                                    <li>Date : <span class="fw-7">@Model.CreatedAt</span></li>
+                                    <li>Total : <span class="fw-7">$@Model.EndPrice</span></li>
+@*                                     <li>Payment Methods : <span class="fw-7">@Model.PaymentMethod.ToString()</span></li>
+ *@
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- page-cart -->
+
+<div class="btn-sidebar-account">
+    <button data-bs-toggle="offcanvas" data-bs-target="#mbAccount" aria-controls="offcanvas">
+        <i class="icon icon-sidebar-2"></i>
+    </button>
+</div>

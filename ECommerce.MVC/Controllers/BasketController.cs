@@ -18,10 +18,10 @@ namespace ECommerce.MVC.Controllers
         [HttpPost]
         public IActionResult Add(int productVariantId, int quantity)
         {
-            _basketManager.AddToBasket(productVariantId);
-
-            return RedirectToAction("Index","Home");
+            _basketManager.AddToBasket(productVariantId, quantity);
+            return RedirectToAction("Index", "Home");
         }
+
 
         [HttpPost]
         public IActionResult Remove(int id)
@@ -68,7 +68,7 @@ namespace ECommerce.MVC.Controllers
         {
             var model = await _basketManager.GetBasketAsync();
 
-            
+
 
             return View(model);
         }
@@ -99,12 +99,13 @@ namespace ECommerce.MVC.Controllers
             return writer.ToString();
         }
 
-        //[HttpPost]
-        //public IActionResult Clean()
-        //{
-        //    _basketManager.CleanBasket();
-        //    return NoContent();
-        //}
+        [HttpPost]
+        public IActionResult Clean()
+        {
+            _basketManager.CleanBasket();
+            return NoContent(); // this works with your JS fetch
+        }
+
 
     }
 }

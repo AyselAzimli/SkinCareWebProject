@@ -37,7 +37,7 @@ namespace ECommerce.DAL.Repositories
         {
             return await _dbContext.Orders
                 .Include(o => o.OrderItems)
-                .Where(o => o.AppUserId == userId && o.Status == status)
+                .Where(o => o.AppUserId == userId && o.OrderStatus == status)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
         }

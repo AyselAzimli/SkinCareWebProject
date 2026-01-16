@@ -370,6 +370,9 @@ namespace ECommerce.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
+
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
 
@@ -382,13 +385,17 @@ namespace ECommerce.DAL.Migrations
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("OrderStatus")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
@@ -398,6 +405,8 @@ namespace ECommerce.DAL.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("AppUserId");
 
@@ -779,6 +788,12 @@ namespace ECommerce.DAL.Migrations
 
             modelBuilder.Entity("ECommerce.DAL.DataContext.Entities.Order", b =>
                 {
+                    b.HasOne("ECommerce.DAL.DataContext.Entities.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ECommerce.DAL.DataContext.Entities.AppUser", "AppUser")
                         .WithMany("Orders")
                         .HasForeignKey("AppUserId");
@@ -786,6 +801,8 @@ namespace ECommerce.DAL.Migrations
                     b.HasOne("ECommerce.DAL.DataContext.Entities.DiscountCoupon", "Coupon")
                         .WithMany("Orders")
                         .HasForeignKey("CouponId");
+
+                    b.Navigation("Address");
 
                     b.Navigation("AppUser");
 

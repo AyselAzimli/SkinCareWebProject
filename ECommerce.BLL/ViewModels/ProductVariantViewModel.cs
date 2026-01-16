@@ -1,5 +1,4 @@
-﻿
-using ECommerce.DAL.DataContext.Entities;
+﻿using ECommerce.DAL.DataContext.Entities;
 
 namespace ECommerce.BLL.ViewModels
 {
@@ -9,9 +8,13 @@ namespace ECommerce.BLL.ViewModels
         public string? Name { get; set; }
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
-        public Product? Product { get; set; }
 
+        // Add this:
+        public int ProductId { get; set; }
+
+        public Product? Product { get; set; }
     }
+
 
     public class CreateProductVariantViewModel
     {

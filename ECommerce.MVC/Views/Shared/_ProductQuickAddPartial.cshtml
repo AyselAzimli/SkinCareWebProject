@@ -36,16 +36,16 @@
                             @{
                                 var isFirst = true;
 
-                                foreach (var item in Model.Variants ?? [])
+                                @foreach (var item in Model.Variants ?? [])
                                 {
                                     <input type="radio"
-                                           name="size-@Model.Id"
-                                           id="values-@item.Name-@Model.Id"
-                                           value="@item.Name"
+                                           name="variant-@Model.Id"
+                                           id="variant-@item.Id-@Model.Id"
+                                           value="@item.Id"
                                     @(isFirst ? "checked" : "") />
 
                                     <label class="style-text"
-                                           for="values-@item.Name-@Model.Id"
+                                           for="variant-@item.Id-@Model.Id"
                                            data-value="@item.Name"
                                            data-price="@item.Price">
                                         <p>@item.Name</p>
@@ -53,6 +53,7 @@
 
                                     isFirst = false;
                                 }
+
                             }
 
 
@@ -68,47 +69,21 @@
                         <input type="number" name="number" value="1" min="1">
                         <span class="btn-quantity plus-btn">+</span>
                     </div>
-                </div> 
+                </div>
 
                 <!-- Buy Buttons -->
                 <div class="tf-product-info-buy-button">
                     <form asp-controller="Basket" asp-action="Add" method="post">
-                        @* <a asp-controller="Basket"
-                           asp-action="Add"
-                           asp-route-productVariantId="@Model.Id"
-                           asp-route-quantity="1"
-                           class="tf-btn btn-fill btn-add-to-cart">
+
+                        <!-- Correct hidden inputs -->
+                        <input type="hidden" name="productVariantId" id="selectedVariant-@Model.Id"
+                               value="@Model.Variants?.FirstOrDefault()?.Id" />
+                        <input type="hidden" name="quantity" value="1" id="quantityInput-@Model.Id" />
+
+                        <button type="submit" class="tf-btn btn-fill btn-add-to-cart">
                             Add to cart
                             <span class="tf-qty-price">$@(Model.Variants?.FirstOrDefault()?.Price ?? 0)</span>
-                        </a> *@
-
-                        
-                            <input type="hidden" name="productVariantId" value="@Model.Id" />
-                            <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" class="tf-btn btn-fill btn-add-to-cart">
-                                Add to cart
-                                <span class="tf-qty-price">$@(Model.Variants?.FirstOrDefault()?.Price ?? 0)</span>
-                            </button>
-                       
-
-
-                       @*  <button type="button"
-                                class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn btn-add-to-cart"
-                                data-product-id="@Model.Id">
-
-                            <a href="#shoppingCart"
-                               data-bs-toggle="modal"
-                               class="box-icon bg_white quick-add tf-btn-loading">
-                                <span class="icon icon-bag"></span>
-                                <span class="tooltip">
-                                    Add to
-                                    cart
-                                </span>
-                            </a>
-                            <span class="tf-qty-price">$@(Model.Variants?.FirstOrDefault()?.Price ?? 0)</span>
                         </button>
-
- *@
 
                         <div class="tf-product-btn-wishlist btn-icon-action">
                             <i class="icon-heart"></i>
@@ -130,6 +105,7 @@
                             <a href="#" class="payment-more-option">More payment options</a>
                         </div>
                     </form>
+
                 </div>
 
             </div>
@@ -139,154 +115,80 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Use a more specific selector
+
         const quickAddModals = document.querySelectorAll('.popup-quickadd');
 
         quickAddModals.forEach(modal => {
             const modalId = modal.id;
             const productId = modalId.replace('quick_add_', '');
 
-            // More specific selector using the product ID
-            const variantRadios = modal.querySelectorAll(`input[type="radio"][name="size-${productId}"]`);
+            // Elements
+            const variantRadios = modal.querySelectorAll(`input[type="radio"][name="variant-${productId}"]`);
             const priceDisplay = modal.querySelector('.tf-product-info-price .price');
             const cartPriceDisplay = modal.querySelector('.tf-qty-price');
             const variantLabel = modal.querySelector('.variant-picker-label-value');
             const quantityInput = modal.querySelector('input[name="number"]');
             const minusBtn = modal.querySelector('.minus-btn');
             const plusBtn = modal.querySelector('.plus-btn');
-            const variants = {};
+            const hiddenVariantInput = modal.querySelector(`#selectedVariant-${productId}`);
+            const hiddenQuantityInput = modal.querySelector(`#quantityInput-${productId}`);
 
-            // Store variant data
+            // Store variant data (price & name)
+            const variants = {};
             variantRadios.forEach(radio => {
                 const label = modal.querySelector(`label[for="${radio.id}"]`);
                 if (label) {
-                    const variantName = label.dataset.value;
-                    const variantPrice = label.dataset.price;
                     variants[radio.id] = {
-                        name: variantName,
-                        price: parseFloat(variantPrice)
+                        name: label.dataset.value,
+                        price: parseFloat(label.dataset.price)
                     };
                 }
             });
 
+            // Function to update prices & hidden inputs
             function updatePrices() {
-                const selectedRadio = modal.querySelector(`input[type="radio"][name="size-${productId}"]:checked`);
+                const selectedRadio = modal.querySelector(`input[type="radio"][name="variant-${productId}"]:checked`);
+                const quantity = parseInt(quantityInput.value) || 1;
+
+                // Update hidden input for quantity
+                if (hiddenQuantityInput) {
+                    hiddenQuantityInput.value = quantity;
+                }
+
                 if (selectedRadio && variants[selectedRadio.id]) {
                     const variant = variants[selectedRadio.id];
-                    const quantity = parseInt(quantityInput.value) || 1;
                     const totalPrice = (variant.price * quantity).toFixed(2);
 
                     priceDisplay.textContent = `$${variant.price.toFixed(2)}`;
                     cartPriceDisplay.textContent = `$${totalPrice}`;
                     variantLabel.textContent = variant.name;
+
+                    // Update hidden input with ProductVariantId
+                    if (hiddenVariantInput) {
+                        hiddenVariantInput.value = selectedRadio.value;
+                    }
                 }
             }
 
-
-
-
-            
-
-
-function changeQuantity(productId, change) {
-    fetch(`/Cart/ChangeQuantity?productId=${productId}&change=${change}`, {
-        method: 'POST'
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('cartContainer').innerHTML = data.cartHtml;
-            } else {
-                alert('Failed to update quantity');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred');
-        });
-}
-
-function updateCartCount() {
-    fetch('/Basket/GetBasket')
-        .then(response => response.json())
-        .then(data => {
-            const cartCountElement = document.querySelector('.cart-count');
-            if (cartCountElement) {
-                cartCountElement.textContent = data.totalCount;
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-
-
-
-            // Add change event listeners
-            variantRadios.forEach(radio => {
-                radio.addEventListener('change', function () {
-                    console.log('Radio changed:', this.id); // Debug log
-                    updatePrices();
-                });
-            });
-
-            // Quantity button handlers
-            if (minusBtn) {
-                minusBtn.addEventListener('click', function () {
-                    setTimeout(updatePrices, 50);
-                });
-            }
-
-            if (plusBtn) {
-                plusBtn.addEventListener('click', function () {
-                    setTimeout(updatePrices, 50);
-                });
-            }
-
+            // Event listeners
+            variantRadios.forEach(radio => radio.addEventListener('change', updatePrices));
+            if (minusBtn) minusBtn.addEventListener('click', () => setTimeout(updatePrices, 50));
+            if (plusBtn) plusBtn.addEventListener('click', () => setTimeout(updatePrices, 50));
             if (quantityInput) {
                 quantityInput.addEventListener('input', updatePrices);
                 quantityInput.addEventListener('change', updatePrices);
             }
 
-            // Initialize on modal shown
-            modal.addEventListener('shown.bs.modal', function () {
-                updatePrices();
-            });
+            // Initialize hidden inputs and prices when modal is shown
+            modal.addEventListener('shown.bs.modal', () => updatePrices());
+
+            const firstSelected = modal.querySelector(`input[name="variant-${productId}"]:checked`);
+            if (firstSelected && hiddenVariantInput) {
+                hiddenVariantInput.value = firstSelected.value;
+            }
+
+            // Initial calculation
+            updatePrices();
         });
     });
-
-    function addToBasket(productId, quantity = 1) {
-        fetch('/Basket/Add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `productVariantId=${productId}&quantity=${quantity}`
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert('Added to cart'); // optional toast
-                    updateCartCount();      // update cart icon count
-                } else {
-                    alert('Failed to add to cart');
-                }
-            })
-            .catch(err => console.error(err));
-    }
-
-    // Hook the button click
-    document.querySelectorAll('.btn-add-to-cart').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const productId = this.dataset.productId;
-
-            // Get quantity from the modal input
-            const modal = this.closest('.popup-quickadd');
-            const quantityInput = modal.querySelector('input[name="number"]');
-            const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
-
-            // Optionally get selected variant here if needed
-            // const selectedVariantRadio = modal.querySelector('input[type="radio"]:checked');
-            // const variantId = selectedVariantRadio ? selectedVariantRadio.value : productId;
-
-            addToBasket(productId, quantity);
-        });
-    });
-
 </script>

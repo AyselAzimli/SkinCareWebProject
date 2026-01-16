@@ -18,6 +18,8 @@ namespace ECommerce.BLL
             services.AddScoped<IBrandService, BrandManager>(); // Add this line
             services.AddScoped<IProductService, ProductManager>();
             services.AddScoped<IHomeService, HomeManager>();
+            services.AddScoped<IDetailsService, DetailsManager>();
+
             services.AddScoped<IShopService, ShopManager>();
             services.AddScoped<IHeaderService, HeaderManager>();
             services.AddScoped<IFooterService, FooterManager>();
@@ -27,6 +29,9 @@ namespace ECommerce.BLL
             services.AddScoped<ILanguageService, LanguageManager>();
             services.AddScoped<ICurrencyService, CurrencyManager>();
             // services.AddScoped<ISliderService,SliderManager>();
+            services.AddScoped<IAddressService, AddressManager>();
+            services.AddScoped<IOrderService, OrderManager>();
+            services.AddScoped<IOrderItemService, OrderItemManager>();
 
             services.AddScoped<IProductVariantService, ProductVariantManager>();
             services.AddScoped<BasketManager>();

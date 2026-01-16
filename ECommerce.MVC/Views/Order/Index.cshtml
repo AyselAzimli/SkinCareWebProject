@@ -1,0 +1,69 @@
+﻿@model List<OrderViewModel>
+
+        <!-- page-title -->
+<div class="tf-page-title">
+    <div class="container-full">
+        <div class="heading text-center">My Orders</div>
+    </div>
+</div>
+<!-- /page-title -->
+<!-- page-cart -->
+<section class="flat-spacing-11">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <partial name="_AccountMenuPartial" />
+            </div>
+            <div class="col-lg-9">
+                <div class="my-account-content account-order">
+                    <div class="wrap-account-order">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="fw-6">Order</th>
+                                    <th class="fw-6">Date</th>
+                                    <th class="fw-6">Status</th>
+                                    <th class="fw-6">Total</th>
+                                    <th class="fw-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var orderViewModel in Model)
+                                {
+                                    <tr class="tf-order-item">
+                                        <td>
+                                            #@orderViewModel.Id
+                                        </td>
+                                        <td>
+                                            @orderViewModel.CreatedAt
+                                        </td>
+                                        <td>
+                                            @orderViewModel.OrderStatus.ToString();
+                                        </td>
+                                        <td>
+                                            $@orderViewModel.TotalPrice for @orderViewModel.TotalCount items
+                                        </td>
+                                        <td>
+                                            <a asp-controller="order" asp-action="details" asp-route-id="@orderViewModel.Id"
+                                            class="tf-btn btn-fill animate-hover-btn rounded-0 justify-content-center">
+                                                <span>View</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- page-cart -->
+
+
+<div class="btn-sidebar-account">
+    <button data-bs-toggle="offcanvas" data-bs-target="#mbAccount" aria-controls="offcanvas">
+        <i class="icon icon-sidebar-2"></i>
+    </button>
+</div>

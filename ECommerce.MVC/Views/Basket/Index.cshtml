@@ -32,7 +32,7 @@
                     <tbody>
                         @foreach (var item in Model.Items)
                         {
-                            <tr data-id="@item.ProductId">
+                            <tr data-id="@item.ProductVariantId">
                                 <td>@item.ProductName</td>
 
                                 <td class="text-center">
@@ -41,25 +41,17 @@
 
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-2">
-                                        <button class="btn btn-sm btn-outline-secondary btn-qty"
-                                                data-change="-1">
-                                            −
-                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-qty" data-change="-1">−</button>
 
                                         <span class="fw-bold qty">
                                             @item.Quantity
                                         </span>
 
-                                        <button class="btn btn-sm btn-outline-secondary btn-qty"
-                                                data-change="1">
-                                            +
-                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-qty" data-change="1">+</button>
                                     </div>
                                 </td>
 
-                                <td class="text-center fw-bold">
-                                    $@item.TotalPrice
-                                </td>
+                                <td class="text-center fw-bold total">$@item.TotalPrice</td>
 
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-danger btn-remove">
@@ -72,12 +64,13 @@
                 </table>
 
                 <div class="d-flex justify-content-between align-items-center mt-4">
-                    <h4>
-                        Total: <span id="basket-total">$@Model.TotalPrice</span>
-                    </h4>
+                    <h4>Total: <span id="basket-total">$@Model.TotalPrice</span></h4>
 
                     <button id="clear-basket" class="btn btn-outline-danger">
                         Clear basket
+                    </button>
+                    <button id="order-btn" class="btn btn-success fw-bold">
+                        🛒 ORDER
                     </button>
                 </div>
             </div>
@@ -86,48 +79,93 @@
     </div>
 </section>
 
-
-    <script>
-        // + / - quantity
-        document.querySelectorAll('.btn-qty').forEach(btn => {
-            btn.addEventListener('click', function () {
-
-                const row = this.closest('tr');
-                const id = row.dataset.id;
-                const change = this.dataset.change;
-
-                fetch('/Basket/ChangeQuantity', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `productVariantId=${id}&change=${change}`
-                })
-                .then(res => res.json())
-                .then(() => location.reload());
-            });
-        });
-
-        // remove item
-        document.querySelectorAll('.btn-remove').forEach(btn => {
-            btn.addEventListener('click', function () {
-
-                const row = this.closest('tr');
-                const id = row.dataset.id;
-
-                fetch('/Basket/Remove', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `id=${id}`
-                })
-                .then(() => location.reload());
-            });
-        });
-
-        // clear basket
-        const clearBtn = document.getElementById('clear-basket');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-                fetch('/Basket/Clean', { method: 'POST' })
-                    .then(() => location.reload());
-            });
+<script>
+    // Disable minus button on page load if quantity is 1
+    document.querySelectorAll('tr').forEach(row => {
+        const qtySpan = row.querySelector('.qty');
+        const minusBtn = row.querySelector('.btn-qty[data-change="-1"]');
+        if (qtySpan && minusBtn) {
+            const qty = parseInt(qtySpan.textContent, 10) || 1;
+            minusBtn.disabled = qty <= 1;
         }
-    </script>
+    });
+
+    // + / - quantity buttons
+    document.querySelectorAll('.btn-qty').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const id = row.dataset.id;
+            const qtySpan = row.querySelector('.qty');
+            const totalCell = row.querySelector('.total');
+            const minusBtn = row.querySelector('.btn-qty[data-change="-1"]');
+            const change = parseInt(this.dataset.change, 10);
+
+            // Immediately update the UI for responsiveness
+            let quantity = parseInt(qtySpan.textContent, 10) || 1;
+            quantity += change;
+            if (quantity < 1) quantity = 1;
+            qtySpan.textContent = quantity;
+            minusBtn.disabled = quantity <= 1;
+
+            // Update row total
+            const price = parseFloat(row.querySelector('td:nth-child(2)').textContent.replace('$', ''));
+            const total = (price * quantity).toFixed(2);
+            totalCell.textContent = `$${total}`;
+
+            // Update basket total
+            let basketTotal = 0;
+            document.querySelectorAll('.total').forEach(cell => {
+                basketTotal += parseFloat(cell.textContent.replace('$', ''));
+            });
+            document.getElementById('basket-total').textContent = `$${basketTotal.toFixed(2)}`;
+
+            // Send change to backend to persist in cookie
+            fetch('/Basket/ChangeQuantity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `productVariantId=${id}&change=${change}`
+            })
+                .then(res => res.json())
+                .then(updatedBasket => {
+                    // Sync UI with server data (optional, safe approach)
+                    const item = updatedBasket.items.find(x => x.productVariantId == id);
+                    if (item) {
+                        qtySpan.textContent = item.quantity;
+                        totalCell.textContent = `$${item.totalPrice.toFixed(2)}`;
+                    }
+                    document.getElementById('basket-total').textContent = `$${updatedBasket.totalPrice.toFixed(2)}`;
+                })
+                .catch(err => console.error('Quantity update failed:', err));
+        });
+    });
+
+    // Remove item
+    document.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const id = row.dataset.id;
+            console.log('Removing ID:', id); // debug
+
+            fetch('/Basket/Remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id=${id}`
+            })
+                .then(res => {
+                    console.log('Response:', res.status);
+                    location.reload();
+                })
+                .catch(err => console.error('Remove failed:', err));
+        });
+    });
+
+    // clear basket
+    const clearBtn = document.getElementById('clear-basket');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            fetch('/Basket/Clean', { method: 'POST' })
+                .then(() => location.reload());
+
+        });
+    }
+</script>

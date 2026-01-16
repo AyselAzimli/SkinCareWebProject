@@ -1,333 +1,153 @@
-﻿//using AutoMapper;
-//using ECommerce.BLL.Services.Contracts;
-//using ECommerce.DAL.DataContext.Entities;
-//using ECommerce.DAL.Repositories.Contracts;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using AutoMapper;
+using ECommerce.BLL.Services.Contracts;
+using ECommerce.BLL.ViewModels;
+using ECommerce.DAL.DataContext.Entities;
+using ECommerce.DAL.Repositories.Contracts;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-//namespace ECommerce.BLL.Services
-//{
-//    public class OrderManager : IOrderService
-//    {
-//        private readonly IOrderRepository _repository;
-//        private readonly IMapper _mapper;
-//        private readonly IAddressRepository _addressRepository;
+namespace ECommerce.BLL.Services
+{
+    public class OrderManager : CrudManager<Order, OrderViewModel, OrderCreateViewModel, OrderUpdateViewModel>,
+            IOrderService
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IAddressService _addressService;
+        private readonly IOrderItemService _orderDetailService;
+        private readonly BasketManager _basketManager;
 
-//        public OrderManager(IOrderRepository repository, IMapper mapper, IAddressRepository addressRepository)
-//        {
-//            _repository = repository;
-//            _mapper = mapper;
-//            _addressRepository = addressRepository;
-//        }
+        public OrderManager(
+            IRepository<Order> repository,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<AppUser> userManager,
+            IAddressService addressService,
+            IOrderItemService orderDetailService,
+            BasketManager basketManager
+        ) : base(repository, mapper)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _userManager = userManager;
+            _addressService = addressService;
+            _orderDetailService = orderDetailService;
+            _basketManager = basketManager;
+        }
 
-//        public async Task<List<OrderListViewModel>> GetUserOrdersAsync(string userId)
-//        {
-//            var orders = await _repository.GetUserOrdersAsync(userId);
+        // Populate order creation model with user info and default address
+        public async Task<OrderCreateViewModel> GetUserAndAddressViewModel(OrderCreateViewModel model)
+        {
+            var currentUser = _httpContextAccessor.HttpContext?.User;
 
-//            return orders.Select(o => new OrderListViewModel
-//            {
-//                Id = o.Id,
-//                OrderNumber = o.OrderNumber,
-//                OrderDate = o.CreatedAt,
-//                Status = o.Status.ToString(),
-//                TotalAmount = o.TotalAmount,
-//                ItemCount = o.Items.Count
-//            }).ToList();
-//        }
+            if (currentUser != null && currentUser.Identity!.IsAuthenticated)
+            {
+                var user = await _userManager.FindByNameAsync(currentUser.Identity.Name!);
 
-//        public async Task<OrderDetailsViewModel?> GetOrderDetailsAsync(int orderId, string userId)
-//        {
-//            var order = await _repository.GetOrderWithDetailsAsync(orderId, userId);
+                if (user != null)
+                {
+                    model.AppUserId = user.Id;
+                    model.Email = user.Email!;
 
-//            if (order == null)
-//                return null;
+                    var addressViewModel = await _addressService.GetAsync(
+                        x => x.AppUserId == user.Id && x.IsDefault && !x.IsDeleted
+                    );
 
-//            var subtotal = order.Items.Sum(i => i.Subtotal);
+                    if (addressViewModel != null)
+                    {
+                        model.AddressCreateViewModel = new AddressCreateViewModel()
+                        {
+                            Adress = addressViewModel.Adress!,
+                            FirstName = addressViewModel.FirstName!,
+                            LastName = addressViewModel.LastName!,
+                            Country = addressViewModel.Country!,
+                            Company = addressViewModel.Company,
+                            City = addressViewModel.City!,
+                            Phone = addressViewModel.Phone!,
+                            PostalCode = addressViewModel.PostalCode!
+                        };
+                    }
+                }
+            }
 
-//            var discountAmount = ValidateDiscountCode(order.DiscountCode ?? string.Empty);
-//            var totalAfterDiscount = subtotal - discountAmount;
+            return model;
+        }
 
-//            var viewModel = new OrderDetailsViewModel
-//            {
-//                Id = order.Id,
-//                OrderNumber = order.OrderNumber,
-//                Status = order.Status.ToString(),
-//                OrderDate = order.CreatedAt,
-//                TotalAmount = totalAfterDiscount,
-//                DiscountAmount = discountAmount,
-//                CourierService = order.CourierService,
-//                TrackingNumber = order.TrackingNumber,
-//                Warehouse = order.Warehouse,
-//                EstimatedDeliveryDate = order.EstimatedDeliveryDate,
-//                ShippedDate = order.ShippedDate,
-//                Items = order.Items.Select(i => new OrderItemViewModel
-//                {
-//                    Id = i.Id,
-//                    ProductName = i.ProductName,
-//                    ImageUrl = i.ImageUrl,
-//                    Color = i.Color,
-//                    Quantity = i.Quantity,
-//                    Price = i.Price,
-//                    Subtotal = i.Subtotal
-//                }).ToList()
-//            };
+        // Create order
+        public override async Task CreateAsync(OrderCreateViewModel model)
+        {
+            // Fill order items from basket
+            model.OrderDetails = await _orderDetailService.GetOrderItemCreateViewModels();
+            model.OrderStatus = OrderStatus.Pending;
 
-//            if (order.ShippingAddress != null)
-//            {
-//                viewModel.ShippingAddress =
-//                    $"{order.ShippingAddress.Adress}, {order.ShippingAddress.City}, {order.ShippingAddress.Country}";
-//            }
+            var order = Mapper.Map<Order>(model);
 
-//            viewModel.History = BuildOrderHistory(order);
+            var currentUser = _httpContextAccessor.HttpContext?.User;
 
-//            return viewModel;
-//        }
+            if (currentUser != null && currentUser.Identity!.IsAuthenticated)
+            {
+                var user = await _userManager.FindByNameAsync(currentUser.Identity.Name!);
 
-//        private decimal ValidateDiscountCode(string code)
-//        {
-//            return code.ToUpper() switch
-//            {
-//                "SAVE10" => 10,
-//                "SAVE20" => 20,
-//                "WELCOME15" => 15,
-//                _ => 0
-//            };
-//        }
+                if (user != null)
+                {
+                    order.AppUserId = user.Id;
+                    order.Email = user.Email!;
 
-//        public async Task<bool> CancelOrderAsync(int orderId, string userId)
-//        {
-//            var order = await _repository.GetAsync(o => o.Id == orderId && o.UserId == userId);
+                    var addressViewModel = await _addressService.GetAsync(
+                        x => x.AppUserId == user.Id && x.IsDefault && !x.IsDeleted
+                    );
 
-//            if (order == null)
-//                return false;
+                    if (addressViewModel != null)
+                        order.AddressId = addressViewModel.Id;
+                }
+            }
+            else if (model.AddressCreateViewModel != null)
+            {
+                var address = await _addressService.CreateAddressAsync(model.AddressCreateViewModel);
+                order.AddressId = address.Id;
+            }
 
-//            if (order.Status == OrderStatus.Shipped || order.Status == OrderStatus.InProgress || order.Status == OrderStatus.Completed)
-//                return false;
+            await Repository.CreateAsync(order);
+        }
 
-//            order.Status = OrderStatus.Cancelled;
-//            await _repository.UpdateAsync(order);
-//            return true;
-//        }
+        // Get all orders of a user
+        public async Task<List<OrderViewModel>> GetOrderViewModelsAsync(string userId)
+        {
+            var model = await GetAllAsync(
+                x => x.AppUser!.Id == userId && !x.IsDeleted,
+                include: x => x.Include(o => o.OrderItems)
+                               .ThenInclude(od => od.ProductVariant)
+                               .ThenInclude(pv => pv.Product)
+            );
 
-//        public async Task<int> PlaceOrderAsync(string userId, CheckoutViewModel model)
-//        {
-//            var shippingAddress = new Address
-//            {
-//                FirstName = model.FirstName,
-//                LastName = model.LastName,
-//                Adress = model.Address,
-//                City = model.City,
-//                Country = model.Country,
-//                PostalCode = model.PostalCode ?? "00000",
-//                PhoneNumber = model.PhoneNumber,
-//                Email = model.Email,
-//                UserId = userId,
-//                IsDefault = false
-//            };
+            return model.ToList();
+        }
 
-//            await _addressRepository.CreateAsync(shippingAddress);
+        // Get order details by ID
+        public async Task<OrderViewModel> GetDetailsOfOrderAsync(int orderId)
+        {
+            var order = await GetAsync(
+                x => x.Id == orderId && !x.IsDeleted,
+                include: x => x.Include(o => o.OrderItems)
+                               .ThenInclude(od => od.ProductVariant)
+                               .ThenInclude(pv => pv.Product)
+                               .Include(o => o.Address)
+            );
 
-//            string orderNumber = $"ORD-{DateTime.Now:yyyyMMdd}-{new Random().Next(1000, 9999)}";
+            if (order == null)
+                return null!;
 
-//            var order = new Order
-//            {
-//                UserId = userId,
-//                OrderNumber = orderNumber,
-//                TotalAmount = model.TotalAmount,
-//                PaymentMethod = model.PaymentMethod,
-//                DiscountCode = model.DiscountCode,
-//                Status = OrderStatus.OnHold,
-//                ShippingAddressId = shippingAddress.Id,
-//                BillingAddressId = shippingAddress.Id,
-//                Items = model.CartItems.Select(item => new OrderItem
-//                {
-//                    ProductId = item.ProductId,
-//                    ProductName = item.ProductName,
-//                    Color = item.Color,
-//                    ImageUrl = item.ImageUrl,
-//                    Quantity = item.Quantity,
-//                    Price = item.Price
-//                }).ToList()
-//            };
+            // Calculate total price per order item
+            foreach (var detail in order.OrderDetails)
+            {
+                detail.TotalPrice = detail.ProductVariant!.Price * detail.Quantity;
+            }
 
-//            await _repository.CreateAsync(order);
-
-//            return order.Id;
-//        }
-
-//        // BuildOrderHistory metodu Order entity-sindən OrderHistoryItemViewModel list-i yaradır. 
-//        private List<OrderHistoryItemViewModel> BuildOrderHistory(Order order)
-//        {
-//            var history = new List<OrderHistoryItemViewModel>();
-
-//            history.Add(new OrderHistoryItemViewModel
-//            {
-//                Event = "Order Placed",
-//                Timestamp = order.CreatedAt,
-//                IsCompleted = true
-//            });
-
-//            if (order.PackagedDate.HasValue)
-//            {
-//                history.Add(new OrderHistoryItemViewModel
-//                {
-//                    Event = "Product Packaging",
-//                    Timestamp = order.PackagedDate.Value,
-//                    IsCompleted = true
-//                });
-//            }
-
-//            if (order.ShippedDate.HasValue)
-//            {
-//                history.Add(new OrderHistoryItemViewModel
-//                {
-//                    Event = "Product Shipped",
-//                    Timestamp = order.ShippedDate.Value,
-//                    Details = $"Courier Service: {order.CourierService}\nTracking Number: {order.TrackingNumber}\nWarehouse: {order.Warehouse}",
-//                    IsCompleted = true
-//                });
-//            }
-
-//            if (order.EstimatedDeliveryDate.HasValue)
-//            {
-//                history.Add(new OrderHistoryItemViewModel
-//                {
-//                    Event = "Estimated Delivery",
-//                    Timestamp = order.EstimatedDeliveryDate.Value,
-//                    IsCompleted = order.Status == OrderStatus.Completed
-//                });
-//            }
-
-//            return history.OrderBy(h => h.Timestamp).ToList();
-//        }
-
-//        public async Task<List<AdminOrderListViewModel>> GetAllOrdersAsync()
-//        {
-//            var orders = await _repository.GetAllOrdersWithUserAsync();
-
-//            return orders.Where(o => !o.IsDeleted).Select(o => new AdminOrderListViewModel
-//            {
-//                Id = o.Id,
-//                OrderNumber = o.OrderNumber,
-//                OrderDate = o.CreatedAt,
-//                Status = o.Status.ToString(),
-//                TotalAmount = o.TotalAmount,
-//                ItemCount = o.Items.Count,
-//                CustomerName = $"{o.User.FirstName} {o.User.LastName}",
-//                CustomerEmail = o.User.Email ?? string.Empty
-//            }).OrderByDescending(o => o.OrderDate).ToList();
-//        }
-
-//        public async Task<AdminOrderDetailsViewModel?> GetOrderDetailsByIdAsync(int orderId)
-//        {
-//            var order = await _repository.GetOrderByIdWithDetailsAsync(orderId);
-
-//            if (order == null)
-//                return null;
-
-//            var subtotal = order.Items.Sum(i => i.Subtotal);
-//            var discountAmount = ValidateDiscountCode(order.DiscountCode ?? string.Empty);
-//            var totalAfterDiscount = subtotal - discountAmount;
-
-//            var viewModel = new AdminOrderDetailsViewModel
-//            {
-//                Id = order.Id,
-//                OrderNumber = order.OrderNumber,
-//                Status = order.Status.ToString(),
-//                OrderDate = order.CreatedAt,
-//                TotalAmount = totalAfterDiscount,
-//                DiscountAmount = discountAmount,
-//                CustomerName = $"{order.User.FirstName} {order.User.LastName}",
-//                CustomerEmail = order.User.Email ?? string.Empty,
-//                PaymentMethod = order.PaymentMethod,
-//                CourierService = order.CourierService,
-//                TrackingNumber = order.TrackingNumber,
-//                Warehouse = order.Warehouse,
-//                EstimatedDeliveryDate = order.EstimatedDeliveryDate,
-//                ProcessingStartedDate = order.ProcessingStartedDate,
-//                PackagedDate = order.PackagedDate,
-//                ShippedDate = order.ShippedDate,
-//                DeliveredDate = order.DeliveredDate,
-//                Items = order.Items.Select(i => new AdminOrderItemViewModel
-//                {
-//                    Id = i.Id,
-//                    ProductName = i.ProductName,
-//                    ImageUrl = i.ImageUrl,
-//                    Color = i.Color,
-//                    Quantity = i.Quantity,
-//                    Price = i.Price,
-//                    Subtotal = i.Subtotal
-//                }).ToList()
-//            };
-
-//            if (order.ShippingAddress != null)
-//            {
-//                viewModel.ShippingAddress = $"{order.ShippingAddress.Adress}, {order.ShippingAddress.City}, {order.ShippingAddress.Country}";
-//            }
-
-//            if (order.BillingAddress != null)
-//            {
-//                viewModel.BillingAddress = $"{order.BillingAddress.Adress}, {order.BillingAddress.City}, {order.BillingAddress.Country}";
-//            }
-
-//            return viewModel;
-//        }
-
-//        public async Task<bool> UpdateOrderStatusAsync(UpdateOrderStatusViewModel model)
-//        {
-//            var order = await _repository.GetAsync(o => o.Id == model.Id);
-
-//            if (order == null)
-//                return false;
-
-//            var oldStatus = order.Status;
-//            order.Status = Enum.Parse<OrderStatus>(model.Status);
-
-//            switch (order.Status)
-//            {
-//                case OrderStatus.Processing:
-//                    if (!order.ProcessingStartedDate.HasValue)
-//                        order.ProcessingStartedDate = DateTime.UtcNow;
-//                    break;
-
-//                case OrderStatus.InProgress:
-//                    if (!order.PackagedDate.HasValue)
-//                        order.PackagedDate = DateTime.UtcNow;
-//                    break;
-
-//                case OrderStatus.Shipped:
-//                    if (!order.ShippedDate.HasValue)
-//                        order.ShippedDate = DateTime.UtcNow;
-
-//                    order.CourierService = model.CourierService;
-//                    order.TrackingNumber = model.TrackingNumber;
-//                    order.Warehouse = model.Warehouse;
-//                    order.EstimatedDeliveryDate = model.EstimatedDeliveryDate ?? DateTime.UtcNow.AddDays(3);
-//                    break;
-
-//                case OrderStatus.Completed:
-//                    if (!order.DeliveredDate.HasValue)
-//                        order.DeliveredDate = DateTime.UtcNow;
-//                    break;
-//            }
-
-//            await _repository.UpdateAsync(order);
-//            return true;
-//        }
-
-//        public async Task<bool> SoftDeleteOrderAsync(int orderId)
-//        {
-//            var order = await _repository.GetAsync(o => o.Id == orderId);
-
-//            if (order == null)
-//                return false;
-
-//            order.IsDeleted = true;
-//            await _repository.UpdateAsync(order);
-//            return true;
-//        }
-//    }
-//}
+            return order;
+        }
+    }
+}

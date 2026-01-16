@@ -1,338 +1,274 @@
-﻿@{
-    ShopViewModel model = Model;
-    var products= model.Products;
-    var categories = model.Categories;
+﻿@model ShopViewModel
+
+@{
+    var products = Model.Products;
+    var categories = Model.Categories;
 }
-
-
-
 
 <div class="tf-page-title">
     <div class="container-full">
         <div class="heading text-center">New Arrival</div>
-        <p class="text-center text-2 text_black-2 mt_5">Shop through our latest selection of Fashion</p>
+        <p class="text-center text-2 text_black-2 mt_5">
+            Shop through our latest selection of Fashion
+        </p>
     </div>
 </div>
-<!-- /page-title -->
-<!-- Section Product -->
+
 <section class="flat-spacing-2">
     <div class="container">
+
+        <!-- TOP CONTROLS -->
         <div class="tf-shop-control grid-3 align-items-center">
+
             <div class="tf-control-filter">
-                <a href="#filterShop" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft"
-                   class="tf-btn-filter">
-                    <span class="icon icon-filter"></span><span class="text">Filter</span>
+                <a href="#filterShop" data-bs-toggle="offcanvas" class="tf-btn-filter">
+                    <span class="icon icon-filter"></span>
+                    <span class="text">Filter</span>
                 </a>
             </div>
-            <ul class="tf-control-layout d-flex justify-content-center">
-                
-            </ul>
-            <div class="tf-control-sorting d-flex justify-content-end">
 
-                <form asp-controller="Shop" asp-action="Index" method="get" class="d-inline">
-                    <button type="submit" class="btn btn-outline-dark mb-2">
+            <div></div>
+
+            <div class="tf-control-sorting d-flex justify-content-end">
+                <form asp-controller="Shop" asp-action="Index" method="get">
+                    <button type="submit" class="btn btn-outline-dark">
                         Reset Filter
                     </button>
                 </form>
+            </div>
 
-                <div class="tf-dropdown-sort" data-bs-toggle="dropdown">
-                    <div class="btn-select">
-                        <span class="text-sort-value">Featured</span>
-                        <span class="icon icon-arrow-down"></span>
+        </div>
+
+        <!-- GRID -->
+        <div class="tf-grid-layout wrapper-shop tf-col-4 mt-4">
+
+            @if (!products.Any())
+            {
+                <p class="text-center">No products found.</p>
+            }
+
+            @foreach (var item in products)
+            {
+
+                <div class="card-product grid" data-availability="In stock" data-brand="Ecomus">
+                    <div class="card-product-wrapper" style="cursor:pointer;"
+                         >
+@*                         onclick="window.location.href='@Url.Action("Index", "Details", new { id = item.Id })'">
+ *@
+                        <img class="lazyload img-product" data-src="/images/products/@item.CoverImageName"
+                             src="~/images/products/@item.CoverImageName" alt="@item.Name">
+
+
+                        @{
+                            var picture = item.Images.FirstOrDefault();
+                        }
+                        @if (picture != null)
+                        {
+                            <img class="lazyload img-hover" data-src="/images/products/@picture.ImageName"
+                                 src="~/images/products/@picture.ImageName" alt="@item.Name">
+                        }
+
+                        <div class="list-product-btn absolute-2">
+                            <a href="#quick_add" data-bs-toggle="modal" data-bs-target="#quick_add_@item.Id"
+                               class="box-icon bg_white quick-add tf-btn-loading">
+                                <span class="icon icon-bag"></span>
+                                <span class="tooltip">Quick Add</span>
+                            </a>
+                            <a href="#" class="box-icon bg_white wishlist btn-icon-action">
+                                <span class="icon icon-heart"></span>
+                                <span class="tooltip">Add to Wishlist</span>
+                                <span class="icon icon-delete"></span>
+                            </a>
+                            <a href="#quick_view" data-bs-toggle="modal" data-bs-target="#quick_view_@item.Id"
+                               class="box-icon bg_white quickview tf-btn-loading">
+                                <span class="icon icon-view"></span>
+                                <span class="tooltip">Quick View</span>
+                            </a>
+                        </div>
                     </div>
-                    <div class="dropdown-menu">
-                        <div class="select-item active">
-                            <span class="text-value-item">Featured</span>
-                        </div>
-                        <div class="select-item">
-                            <span class="text-value-item">Best selling</span>
-                        </div>
-                        <div class="select-item" data-sort-value="a-z">
-                            <span class="text-value-item">Alphabetically, A-Z</span>
-                        </div>
-                        <div class="select-item" data-sort-value="z-a">
-                            <span class="text-value-item">Alphabetically, Z-A</span>
-                        </div>
-                        <div class="select-item" data-sort-value="price-low-high">
-                            <span class="text-value-item">Price, low to high</span>
-                        </div>
-                        <div class="select-item" data-sort-value="price-high-low">
-                            <span class="text-value-item">Price, high to low</span>
-                        </div>
-                        <div class="select-item">
-                            <span class="text-value-item">Date, old to new</span>
-                        </div>
-                        <div class="select-item">
-                            <span class="text-value-item">Date, new to old</span>
-                        </div>
+                    <div class="card-product-info">
+                        <a href="product-detail.html" class="title link">@item.Name</a>
+
+                        @{
+                            var variant = item.Variants.FirstOrDefault();
+                        }
+                        @if (variant != null)
+                        {
+                            <span class="price current-price">$@variant.Price</span>
+                        }
+
+                        @* <ul class="list-color-product">
+                    @foreach(var varItem in item.Variants.Take(3))
+                    {
+                    <li class="list-color-item color-swatch active">
+                    <span class="tooltip">Orange</span>
+                    <span class="swatch-value bg_orange-3"></span>
+                    <img class="lazyload" data-src="/images/products/orange-1.jpg"
+                    src="~/images/products/orange-1.jpg" alt="image-product">
+                    </li>
+                    <li class="list-color-item color-swatch">
+                    <span class="tooltip">Black</span>
+                    <span class="swatch-value bg_dark"></span>
+                    <img class="lazyload" data-src="/images/products/black-1.jpg"
+                    src="~/images/products/black-1.jpg" alt="image-product">
+                    </li>
+                    <li class="list-color-item color-swatch">
+                    <span class="tooltip">White</span>
+                    <span class="swatch-value bg_white"></span>
+                    <img class="lazyload" data-src="/images/products/white-1.jpg"
+                    src="~/images/products/white-1.jpg" alt="image-product">
+                    </li>
+                    }
+
+                    </ul> *@
                     </div>
                 </div>
-            </div>
+            }
+
         </div>
-        <div class="wrapper-control-shop">
-            <div class="meta-filter-shop">
-                <div id="product-count-grid" class="count-text"></div>
-                <div id="product-count-list" class="count-text"></div>
-                <div id="applied-filters"></div>
-                <button id="remove-all" class="remove-all-filters" style="display: none;">
-                    Remove All <i class="icon icon-close"></i>
-                </button>
-            </div>
-            <div class="tf-list-layout wrapper-shop" id="listLayout">
-                
 
+        <!-- PAGINATION -->
+        @if (Model.TotalPages > 1)
+        {
+            <ul class="wg-pagination tf-pagination-list mt-4">
 
-
-                @* HERE WAS A REPEATER FOR PRODUCTS BUT I REMOVED IT TO PUT STATIC EXAMPLE BELOW *@
-
-
-
-                <!-- pagination -->
-                
-            </div>
-            <div class="tf-grid-layout wrapper-shop tf-col-4" id="gridLayout">
-                <!-- card product 1 -->
-                @foreach(var item in products)
+                @if (Model.CurrentPage > 1)
                 {
-
-                    <div class="card-product grid" data-availability="In stock" data-brand="Ecomus">
-                        <div class="card-product-wrapper">
-                            <a href="product-detail.html" class="product-img">
-                                <img class="lazyload img-product" data-src="/images/products/@item.CoverImageName"
-                                     src="~/images/products/@item.CoverImageName" alt="image-product">
-
-                                @{
-                                    var picture = item.Images.FirstOrDefault();
-                                }
-                                @if (picture != null)
-                                {
-                                    <img class="lazyload img-hover" data-src="/images/products/@picture.ImageName"
-                                         src="~/images/products/@picture.ImageName" alt="image-product">
-                                }
-                                
-                            </a>
-                            <div class="list-product-btn absolute-2">
-                                <a href="#quick_add" data-bs-toggle="modal" data-bs-target="#quick_add_@item.Id"
-                                   class="box-icon bg_white quick-add tf-btn-loading">
-                                    <span class="icon icon-bag"></span>
-                                    <span class="tooltip">Quick Add</span>
-                                </a>
-                                <a href="#" class="box-icon bg_white wishlist btn-icon-action">
-                                    <span class="icon icon-heart"></span>
-                                    <span class="tooltip">Add to Wishlist</span>
-                                    <span class="icon icon-delete"></span>
-                                </a>
-                                <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft"
-                                   class="box-icon bg_white compare btn-icon-action">
-                                    <span class="icon icon-compare"></span>
-                                    <span class="tooltip">Add to Compare</span>
-                                    <span class="icon icon-check"></span>
-                                </a>
-                                <a href="#quick_view" data-bs-toggle="modal" data-bs-target="#quick_view_@item.Id"
-                                   class="box-icon bg_white quickview tf-btn-loading">
-                                    <span class="icon icon-view"></span>
-                                    <span class="tooltip">Quick View</span>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-product-info">
-                            <a href="product-detail.html" class="title link">@item.Name</a>
-
-                            @{
-                                var variant = item.Variants.FirstOrDefault();
-                            }
-                            @if (variant != null)
-                            {
-                                <span class="price current-price">$@variant.Price</span>
-                            }
-                            
-                            @* <ul class="list-color-product">
-                                @foreach(var varItem in item.Variants.Take(3))
-                                {
-                                    <li class="list-color-item color-swatch active">
-                                        <span class="tooltip">Orange</span>
-                                        <span class="swatch-value bg_orange-3"></span>
-                                        <img class="lazyload" data-src="/images/products/orange-1.jpg"
-                                             src="~/images/products/orange-1.jpg" alt="image-product">
-                                    </li>
-                                    <li class="list-color-item color-swatch">
-                                        <span class="tooltip">Black</span>
-                                        <span class="swatch-value bg_dark"></span>
-                                        <img class="lazyload" data-src="/images/products/black-1.jpg"
-                                             src="~/images/products/black-1.jpg" alt="image-product">
-                                    </li>
-                                    <li class="list-color-item color-swatch">
-                                        <span class="tooltip">White</span>
-                                        <span class="swatch-value bg_white"></span>
-                                        <img class="lazyload" data-src="/images/products/white-1.jpg"
-                                             src="~/images/products/white-1.jpg" alt="image-product">
-                                    </li>
-                                }
-                                
-                            </ul> *@
-                        </div>
-                    </div>
+                    <li>
+                        <a asp-controller="Shop"
+                           asp-action="Index"
+                           asp-route-page="@(Model.CurrentPage - 1)"
+                           asp-route-categoryId="@Model.SelectedCategoryId"
+                           asp-route-brandId="@Model.SelectedBrandId"
+                           asp-route-search="@Model.Search"
+                           class="pagination-link">
+                            <span class="icon icon-arrow-left"></span>
+                        </a>
+                    </li>
                 }
-                
-                
-                <!-- pagination -->
-                <ul class="wg-pagination tf-pagination-list">
-                    <li class="active">
-                        <a href="#" class="pagination-link">1</a>
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="@(i == Model.CurrentPage ? "active" : "")">
+                        <a asp-controller="Shop"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-categoryId="@Model.SelectedCategoryId"
+                           asp-route-brandId="@Model.SelectedBrandId"
+                           asp-route-search="@Model.Search"
+                           class="pagination-link">
+                            @i
+                        </a>
                     </li>
+                }
+
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
                     <li>
-                        <a href="#" class="pagination-link animate-hover-btn">2</a>
-                    </li>
-                    <li>
-                        <a href="#" class="pagination-link animate-hover-btn">3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="pagination-link animate-hover-btn">4</a>
-                    </li>
-                    <li>
-                        <a href="#" class="pagination-link animate-hover-btn">
+                        <a asp-controller="Shop"
+                           asp-action="Index"
+                           asp-route-page="@(Model.CurrentPage + 1)"
+                           asp-route-categoryId="@Model.SelectedCategoryId"
+                           asp-route-brandId="@Model.SelectedBrandId"
+                           asp-route-search="@Model.Search"
+                           class="pagination-link">
                             <span class="icon icon-arrow-right"></span>
                         </a>
                     </li>
+                }
+
+            </ul>
+        }
+
+    </div>
+</section>
+
+<!-- FILTER SIDEBAR -->
+<div class="offcanvas offcanvas-start canvas-filter" id="filterShop">
+    <div class="canvas-wrapper bg-light h-100 p-3">
+
+        <!-- HEADER -->
+        <header class="canvas-header d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+            <h5 class="mb-0 fw-bold">Filter Products</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </header>
+
+        <div class="canvas-body">
+
+            <!-- CATEGORIES -->
+            <div class="widget-facet mb-4">
+                <h6 class="text-uppercase fw-semibold mb-2">Categories</h6>
+                <ul class="list-unstyled ps-0">
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <li class="mb-2">
+                            <a asp-controller="Shop"
+                               asp-action="Index"
+                               asp-route-categoryId="@cat.Id"
+                               asp-route-brandId="@Model.SelectedBrandId"
+                               asp-route-search="@Model.Search"
+                               class="d-flex align-items-center gap-2 text-decoration-none text-dark p-2 rounded hover-bg-light">
+                                <input type="radio" class="form-check-input me-2" name="category" />
+                                <span>@cat.Name</span>
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
 
-        </div>
-    </div>
-</section>
-<!-- /Section Product -->
-
-
-
-<div class="offcanvas offcanvas-start canvas-filter" id="filterShop">
-    <div class="canvas-wrapper">
-        <header class="canvas-header">
-            <div class="filter-icon">
-                <span class="icon icon-filter"></span>
-                <span>Filter</span>
+            <!-- BRANDS -->
+            <div class="widget-facet mb-4">
+                <h6 class="text-uppercase fw-semibold mb-2">Brands</h6>
+                <ul class="list-unstyled ps-0">
+                    @foreach (var brand in Model.Brands)
+                    {
+                        <li class="mb-2">
+                            <a asp-controller="Shop"
+                               asp-action="Index"
+                               asp-route-brandId="@brand.Id"
+                               asp-route-categoryId="@Model.SelectedCategoryId"
+                               asp-route-search="@Model.Search"
+                               class="d-flex align-items-center gap-2 text-decoration-none text-dark p-2 rounded hover-bg-light">
+                                <input type="radio" class="form-check-input me-2" name="brand" />
+                                <span>@brand.Name</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
-            <span class="icon-close icon-close-popup" data-bs-dismiss="offcanvas" aria-label="Close"></span>
-        </header>
-        <div class="canvas-body">
-            <div class="widget-facet wd-categories">
-                <div class="facet-title" data-bs-target="#categories" data-bs-toggle="collapse" aria-expanded="true"
-                     aria-controls="categories">
-                    <span>Product categories</span>
-                    <span class="icon icon-arrow-up"></span>
-                </div>
-                <div id="categories" class="collapse show">
-                    <ul class="list-categoris current-scrollbar mb_36">
-                        @foreach (var item in Model.Categories)
-                        {
-                            <li class="list-item d-flex gap-12 align-items-center">
-                                <input type="radio" name="category" class="tf-check" id="@item.Id">
-                                <a asp-action="Index"
-                                   asp-route-brandId="@item.Id"
-                                   asp-route-search="@Model.Search"
-                                   asp-route-categoryId="@Model.SelectedCategoryId">
-                                    @item.Name
-                                </a>
 
-
-
-@*                                 <label for="@item.Id" class="label"><span>@item.Name</span></label>
- *@                            </li>
-                        }
-                    </ul>
-                </div>
+            <!-- RESET BUTTON -->
+            <div class="mt-3">
+                <form asp-controller="Shop" asp-action="Index" method="get">
+                    <button type="submit" class="btn btn-outline-dark w-100">
+                        Reset Filters
+                    </button>
+                </form>
             </div>
-            <form action="#" id="facet-filter-form" class="facet-filter-form">
-                <div class="widget-facet">
-                    <div class="facet-title" data-bs-target="#availability" data-bs-toggle="collapse"
-                         aria-expanded="true" aria-controls="availability">
-                        <span>Availability</span>
-                        <span class="icon icon-arrow-up"></span>
-                    </div>
-                    <div id="availability" class="collapse show">
-                        <ul class="tf-filter-group current-scrollbar mb_36">
-                            <li class="list-item d-flex gap-12 align-items-center">
-                                <input type="radio" name="availability" class="tf-check" id="inStock">
-                                <label for="inStock" class="label">
-                                    <span>
-                                        In
-                                        stock
-                                    </span>&nbsp;<span></span>
-                                </label>
-                            </li>
-                            <li class="list-item d-flex gap-12 align-items-center">
-                                <input type="radio" name="availability" class="tf-check" id="outStock">
-                                <label for="outStock" class="label">
-                                    <span>
-                                        Out of
-                                        stock
-                                    </span>&nbsp;<span></span>
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="widget-facet">
-                    <div class="facet-title" data-bs-target="#price" data-bs-toggle="collapse" aria-expanded="true"
-                         aria-controls="price">
-                        <span>Price</span>
-                        <span class="icon icon-arrow-up"></span>
-                    </div>
-                    <div id="price" class="collapse show">
-                        <div class="widget-price filter-price">
-                            <div class="price-val-range" id="price-value-range" data-min="0" data-max="500"></div>
-                            <div class="box-title-price">
-                                <span class="title-price">Price :</span>
-                                <div class="caption-price">
-                                    <div class="price-val" id="price-min-value" data-currency="$"></div>
-                                    <span>-</span>
-                                    <div class="price-val" id="price-max-value" data-currency="$"></div>
-                                </div>
-                            </div>
-                        </div>
 
-                    </div>
-                </div>
-                <div class="widget-facet">
-                    <div class="facet-title" data-bs-target="#brand" data-bs-toggle="collapse" aria-expanded="true"
-                         aria-controls="brand">
-                        <span>Brand</span>
-                        <span class="icon icon-arrow-up"></span>
-                    </div>
-                    <div id="brand" class="collapse show">
-                        <ul class="tf-filter-group current-scrollbar mb_36">
-                            @foreach (var item in Model.Brands)
-                            {
-                                <li class="list-item d-flex gap-12 align-items-center">
-                                    <input type="radio" name="brand" class="tf-check" id="@item.Id">
-                                    <a asp-action="Index" asp-route-brandId="@item.Id">
-                                        @item.Name
-                                    </a>
-
-                                    @* <label for="@item.Id" class="label"><span>@item.Name</span></label> *@
-                                </li>
-                            }
-                            
-                            
-                        </ul>
-                    </div>
-                </div>
-   
-                 
-            </form>
         </div>
     </div>
 </div>
 
+<style>
+    /* subtle hover effect */
+    .hover-bg-light:hover {
+        background-color: #f8f9fa;
+        transition: 0.2s;
+    }
+
+    .canvas-filter .form-check-input {
+        pointer-events: none; /* just for display since the link triggers the route */
+    }
+</style>
+
+<!-- MODALS -->
 @foreach (var product in Model.Products)
 {
-    <partial name="_ProductQuickViewPartial" model="@product" />
+    <partial name="_ProductQuickViewPartial" model="product" />
 }
 
 @foreach (var product in Model.Products)
 {
-    <partial name="_ProductQuickAddPartial" model="@product" />
+    <partial name="_ProductQuickAddPartial" model="product" />
 }
-
-<script src="~/js/jquery.min.js"></script>
-
-<script src="~/js/shop.js"></script>

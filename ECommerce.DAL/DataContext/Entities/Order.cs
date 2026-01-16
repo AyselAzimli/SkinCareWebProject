@@ -10,15 +10,20 @@ namespace ECommerce.DAL.DataContext.Entities
     {
         public string? AppUserId { get; set; }
         public int? CouponId { get; set; }
-        public OrderStatus Status { get; set; }
+        public OrderStatus OrderStatus { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal DiscountAmount { get; set; }
+        public string Email { get; set; } = null!;
+
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
         public AppUser? AppUser { get; set; }
         public DiscountCoupon? Coupon { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; } = [];
+        public int AddressId { get; set; }
+        public Address Address { get; set; } = null!;
+
 
     }
 
